@@ -3,16 +3,16 @@
   "short_name": "Scofield",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#4a90e2",
+  "background_color": "#111",
+  "theme_color": "#111",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
