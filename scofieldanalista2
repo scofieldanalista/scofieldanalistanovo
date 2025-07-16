@@ -1,0 +1,141 @@
+
+// Funções utilitárias para parsing e validação
+
+function parseTimeToSeconds(timeStr) {
+    if (!timeStr) return null;
+    const parts = timeStr.split(':');
+    if (parts.length !== 3) return null;
+    const [h, m, s] = parts.map(Number);
+    if ([h,m,s].some(isNaN)) return null;
+    return h*3600 + m*60 + s;
+}
+
+function secondsToTimeStr(seconds) {
+    const h = Math.floor(seconds/3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    return `${h}:${m}:${s}`;
+}
+
+// Estado do app
+let historyData = [];
+let strategies = [];
+let lastPrediction = null;
+
+// Parse histórico com suporte para diferentes formatos
+function parseHistory(text) {
+    const lines = text.trim().split('\n').map(l => l.trim()).filter(l=>l);
+    let parsed = [];
+    for(let i=0; i<lines.length; i++) {
+        let line = lines[i];
+        // Suporta formato: número / branco / horário
+        if (/^\d+$/.test(line)) {
+            // Número, cor determinada pela faixa 1-7 vermelho, 8-14 preto
+            const num = parseInt(line);
+            let color = 'red';
+            if (num >= 8 && num <= 14) color = 'black';
+            parsed.push({number: num, color: color});
+        } else if (line.toLowerCase() === 'branco' || line.toLowerCase() === 'white' || line === '-') {
+            // Branco detectado
+            parsed.push({number: null, color: 'white'});
+        } else if (/^\d{2}:\d{2}:\d{2}$/.test(line)) {
+            // horário com segundos
+            if(parsed.length > 0) {
+                parsed[parsed.length-1].time = line;
+            }
+        }
+    }
+    return parsed;
+}
+
+function processHistory() {
+    const text = document.getElementById('history-input').value;
+    if (!text.trim()) {
+        alert('Cole o histórico antes de processar.');
+        return;
+    }
+    historyData = parseHistory(text);
+    if (historyData.length === 0) {
+        alert('Histórico inválido ou vazio.');
+        return;
+    }
+    // Aqui poderia gerar estratégias simples para demo
+    strategies = generateSimpleStrategies(historyData);
+    document.getElementById('result').textContent = 'Histórico analisado com sucesso. Estratégias geradas: ' + strategies.length;
+    document.getElementById('correct-btn').disabled = true;
+    document.getElementById('wrong-btn').disabled = true;
+}
+
+function generateSimpleStrategies(data) {
+    // Exemplo simples: detecta se após pedra anterior 5, branco aparece nos próximos minutos
+    // Em um sistema real, aqui teria várias estratégias complexas
+    let strat = [];
+    for(let i=1; i<data.length-1; i++) {
+        if (data[i].color === 'white' && data[i-1].number !== null && data[i+1].number !== null) {
+            strat.push({
+                prevStone: data[i-1].number,
+                nextStone: data[i+1].number,
+                whiteTime: data[i].time
+            });
+        }
+    }
+    return strat;
+}
+
+function analyzeManualInput() {
+    const prevNum = parseInt(document.getElementById('prev-stone-number').value);
+    const prevTime = document.getElementById('prev-stone-time').value;
+    const whiteTime = document.getElementById('white-time').value;
+    const nextNum = parseInt(document.getElementById('next-stone-number').value);
+    const nextTime = document.getElementById('next-stone-time').value;
+
+    if (isNaN(prevNum) || !prevTime || !whiteTime || isNaN(nextNum) || !nextTime) {
+        alert('Por favor, preencha todos os campos corretamente com números e horários com segundos.');
+        return;
+    }
+
+    // Busca estratégia compatível para o horário dado (simplificado)
+    let matches = strategies.filter(s => s.prevStone === prevNum && s.nextStone === nextNum);
+    if (matches.length === 0) {
+        document.getElementById('result').textContent = 'Nenhuma estratégia compatível encontrada para a combinação informada.';
+        document.getElementById('correct-btn').disabled = true;
+        document.getElementById('wrong-btn').disabled = true;
+        return;
+    }
+
+    // Exibe resultado
+    lastPrediction = matches[0];
+    document.getElementById('result').textContent = `Estratégia encontrada: Pedra anterior ${prevNum}, Pedra posterior ${nextNum}, Branco detectado às ${lastPrediction.whiteTime}`;
+    document.getElementById('correct-btn').disabled = false;
+    document.getElementById('wrong-btn').disabled = false;
+}
+
+function feedback(correct) {
+    if (!lastPrediction) return;
+    // Aqui a lógica para ajustar estratégias com base no feedback
+    if (correct) {
+        alert('Obrigado pelo feedback positivo!');
+    } else {
+        alert('Feedback negativo recebido, estratégia será revisada.');
+    }
+    // Desabilita botões após feedback
+    document.getElementById('correct-btn').disabled = true;
+    document.getElementById('wrong-btn').disabled = true;
+    lastPrediction = null;
+}
+
+document.getElementById('process-history-btn').addEventListener('click', processHistory);
+document.getElementById('analyze-btn').addEventListener('click', analyzeManualInput);
+document.getElementById('correct-btn').addEventListener('click', () => feedback(true));
+document.getElementById('wrong-btn').addEventListener('click', () => feedback(false));
+document.getElementById('clear-history-btn').addEventListener('click', () => {
+    historyData = [];
+    strategies = [];
+    lastPrediction = null;
+    document.getElementById('history-input').value = '';
+    document.getElementById('result').textContent = '';
+    document.getElementById('strategies').textContent = '';
+    document.getElementById('correct-btn').disabled = true;
+    document.getElementById('wrong-btn').disabled = true;
+});
+
