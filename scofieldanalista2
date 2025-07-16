@@ -6,100 +6,114 @@
 <title>Scofield Analista</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
     background: #111;
     color: #eee;
-    margin: 0;
-    padding: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 15px;
+    max-width: 600px;
+    margin: auto;
   }
   h1 {
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 10px;
   }
-  textarea {
+  #history-input {
     width: 100%;
     height: 120px;
+    font-family: monospace;
+    font-size: 14px;
     background: #222;
-    color: #eee;
     border: none;
-    padding: 10px;
-    font-size: 1rem;
-    resize: vertical;
-    border-radius: 5px;
-  }
-  .section {
-    margin-bottom: 20px;
-  }
-  label {
-    display: block;
-    margin: 6px 0 2px;
-  }
-  input[type="text"], input[type="number"], input[type="time"] {
-    width: 100%;
+    border-radius: 4px;
+    color: #eee;
     padding: 8px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: none;
-    background: #222;
-    color: #eee;
+    resize: vertical;
   }
   button {
-    margin-top: 10px;
-    background: #1e90ff;
+    background: #4a90e2;
     color: white;
     border: none;
-    padding: 12px 18px;
-    font-size: 1rem;
+    padding: 10px 16px;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
+    margin: 6px 4px 10px 0;
   }
   button:disabled {
-    background: #555;
+    background: #666;
     cursor: not-allowed;
   }
-  .stones-row {
+  .input-row {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 10px;
+    margin-bottom: 15px;
   }
   .stone-box {
     flex: 1;
-    background: #222;
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-  }
-  .color-square {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 8px auto;
+    margin: 0 6px;
     border-radius: 6px;
+    padding: 10px;
+    color: #eee;
+    text-align: center;
+    user-select: none;
   }
-  .red {
-    background: #d22;
-    box-shadow: 0 0 8px #d22;
+  .stone-box.red {
+    background: #b33;
   }
-  .black {
+  .stone-box.black {
     background: #222;
-    border: 2px solid #ccc;
+    border: 2px solid #555;
   }
-  .white {
-    background: #fff;
-    border: 2px solid #aaa;
+  .stone-box.white {
+    background: #eee;
+    color: #222;
+    font-weight: bold;
+    font-size: 1.5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .stone-label {
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: none;
+    font-size: 16px;
+    font-family: monospace;
+    box-sizing: border-box;
   }
   #result {
-    margin-top: 15px;
-    padding: 10px;
     background: #222;
-    border-radius: 5px;
-    min-height: 40px;
-    font-weight: bold;
+    padding: 15px;
+    border-radius: 6px;
+    min-height: 60px;
+    margin-bottom: 12px;
   }
   #strategies {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: #aaa;
+    background: #1a1a1a;
+    padding: 10px;
+    border-radius: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 24px;
+  }
+  .dice {
+    font-size: 2.8em;
+    line-height: 1;
+    margin-bottom: 4px;
+    user-select: none;
   }
 </style>
 </head>
@@ -107,182 +121,286 @@
 
 <h1>Scofield Analista</h1>
 
-<div class="section">
-  <label for="history-input"><strong>Cole o histórico completo aqui (número, branco e horário HH:MM:SS):</strong></label>
-  <textarea id="history-input" placeholder="Exemplo:
+<label for="history-input"><strong>Cole o histórico completo aqui (com números e horários no formato HH:MM:SS):</strong></label>
+<textarea id="history-input" placeholder="Exemplo:
 5
-12:00:10
+07:45:03
 branco
-12:01:12
+07:47:10
 8
-12:02:10
-"></textarea>
-  <button id="process-history-btn">Analisar Histórico</button>
-</div>
+07:49:12
+..."></textarea>
+<br />
+<button id="process-history-btn">Analisar Histórico</button>
+<button id="clear-history-btn">Limpar Histórico</button>
 
-<div class="section">
-  <strong>Informe manualmente as pedras para analisar a estratégia:</strong>
-  <div class="stones-row">
-    <div class="stone-box">
-      <div class="color-square red"></div>
-      <label for="prev-stone-number">Pedra Anterior (Número)</label>
-      <input type="number" id="prev-stone-number" min="1" max="14" placeholder="Ex: 5" />
-      <label for="prev-stone-time">Horário (HH:MM:SS)</label>
-      <input type="text" id="prev-stone-time" placeholder="Ex: 12:00:10" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" />
-    </div>
-    <div class="stone-box">
-      <div class="color-square white"></div>
-      <label for="white-time">Branco (Horário HH:MM:SS)</label>
-      <input type="text" id="white-time" placeholder="Ex: 12:01:12" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" />
-    </div>
-    <div class="stone-box">
-      <div class="color-square black"></div>
-      <label for="next-stone-number">Pedra Posterior (Número)</label>
-      <input type="number" id="next-stone-number" min="1" max="14" placeholder="Ex: 8" />
-      <label for="next-stone-time">Horário (HH:MM:SS)</label>
-      <input type="text" id="next-stone-time" placeholder="Ex: 12:02:10" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" />
-    </div>
-  </div>
-  <button id="analyze-btn">Analisar Manualmente</button>
-</div>
-
-<div class="section">
-  <button id="correct-btn" disabled>Acertou</button>
-  <button id="wrong-btn" disabled>Errou</button>
-</div>
-
-<div id="result"></div>
 <div id="strategies"></div>
 
+<div class="input-row" style="margin-top:25px;">
+  <div class="stone-box red">
+    <div class="stone-label">Pedra Anterior (Vermelho)</div>
+    <input type="number" id="prev-stone-number" min="1" max="14" placeholder="Número" />
+    <input type="text" id="prev-stone-time" placeholder="Horário HH:MM:SS" />
+  </div>
+  <div class="stone-box white">
+    <div class="dice">🎲</div>
+    <div class="stone-label">Branco (Dado)</div>
+    <input type="text" id="white-time" placeholder="Horário HH:MM:SS" />
+  </div>
+  <div class="stone-box black">
+    <div class="stone-label">Pedra Posterior (Preto)</div>
+    <input type="number" id="next-stone-number" min="1" max="14" placeholder="Número" />
+    <input type="text" id="next-stone-time" placeholder="Horário HH:MM:SS" />
+  </div>
+</div>
+
+<button id="analyze-btn">Analisar Entrada Manual</button>
+<button id="correct-btn" disabled>Acertou</button>
+<button id="wrong-btn" disabled>Errou</button>
+
+<div id="result"></div>
+
+<div class="footer">Scofield Analista - Desenvolvido para Blaze Double Game</div>
+
 <script>
-  // Funções utilitárias para parsing e validação
+  // --- Funções utilitárias ---
   function parseTimeToSeconds(timeStr) {
-      if (!timeStr) return null;
-      const parts = timeStr.split(':');
-      if (parts.length !== 3) return null;
-      const [h, m, s] = parts.map(Number);
-      if ([h,m,s].some(isNaN)) return null;
-      return h*3600 + m*60 + s;
+    if (!timeStr) return null;
+    const parts = timeStr.split(':');
+    if (parts.length !== 3) return null;
+    const [h, m, s] = parts.map(Number);
+    if ([h, m, s].some(isNaN)) return null;
+    return h * 3600 + m * 60 + s;
   }
 
   function secondsToTimeStr(seconds) {
-      const h = Math.floor(seconds/3600).toString().padStart(2,'0');
-      const m = Math.floor((seconds%3600)/60).toString().padStart(2,'0');
-      const s = (seconds%60).toString().padStart(2,'0');
-      return `${h}:${m}:${s}`;
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
   }
 
-  // Estado do app
+  // --- Estado do app ---
   let historyData = [];
   let strategies = [];
   let lastPrediction = null;
+  let recMode = false;
 
-  // Parse histórico com suporte para diferentes formatos
+  // --- Função para parsear o histórico ---
   function parseHistory(text) {
-      const lines = text.trim().split('\n').map(l => l.trim()).filter(l=>l);
-      let parsed = [];
-      for(let i=0; i<lines.length; i++) {
-          let line = lines[i];
-          // Suporta formato: número / branco / horário
-          if (/^\d+$/.test(line)) {
-              // Número, cor determinada pela faixa 1-7 vermelho, 8-14 preto
-              const num = parseInt(line);
-              let color = 'red';
-              if (num >= 8 && num <= 14) color = 'black';
-              parsed.push({number: num, color: color});
-          } else if (line.toLowerCase() === 'branco' || line.toLowerCase() === 'white' || line === '-') {
-              // Branco detectado
-              parsed.push({number: null, color: 'white'});
-          } else if (/^\d{2}:\d{2}:\d{2}$/.test(line)) {
-              // horário com segundos
-              if(parsed.length > 0) {
-                  parsed[parsed.length-1].time = line;
-              }
-          }
+    const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l);
+    let parsed = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].toLowerCase();
+
+      if (/^\d+$/.test(line)) {
+        const num = parseInt(line);
+        let color = 'red';
+        if (num >= 8 && num <= 14) color = 'black';
+        parsed.push({ number: num, color, time: null });
+      } else if (line === 'branco' || line === 'white' || line === '-') {
+        parsed.push({ number: null, color: 'white', time: null });
+      } else if (/^\d{2}:\d{2}:\d{2}$/.test(line)) {
+        if (parsed.length > 0) {
+          parsed[parsed.length - 1].time = line;
+        }
       }
-      return parsed;
+    }
+    return parsed;
   }
 
-  function processHistory() {
-      const text = document.getElementById('history-input').value;
-      if (!text.trim()) {
-          alert('Cole o histórico antes de processar.');
-          return;
-      }
-      historyData = parseHistory(text);
-      if (historyData.length === 0) {
-          alert('Histórico inválido ou vazio.');
-          return;
-      }
-      // Aqui poderia gerar estratégias simples para demo
-      strategies = generateSimpleStrategies(historyData);
-      document.getElementById('result').textContent = 'Histórico analisado com sucesso. Estratégias geradas: ' + strategies.length;
-      document.getElementById('correct-btn').disabled = true;
-      document.getElementById('wrong-btn').disabled = true;
-  }
-
+  // --- Função para gerar estratégias ---
   function generateSimpleStrategies(data) {
-      // Exemplo simples: detecta se após pedra anterior 5, branco aparece nos próximos minutos
-      // Em um sistema real, aqui teria várias estratégias complexas
-      let strat = [];
-      for(let i=1; i<data.length-1; i++) {
-          if (data[i].color === 'white' && data[i-1].number !== null && data[i+1].number !== null) {
-              strat.push({
-                  prevStone: data[i-1].number,
-                  nextStone: data[i+1].number,
-                  whiteTime: data[i].time
-              });
-          }
+    let strat = [];
+    for (let i = 1; i < data.length - 1; i++) {
+      if (data[i].color === 'white' && data[i - 1].number !== null && data[i + 1].number !== null) {
+        strat.push({
+          prevStone: data[i - 1].number,
+          nextStone: data[i + 1].number,
+          whiteTime: data[i].time,
+        });
       }
-      return strat;
+    }
+    return strat;
   }
 
+  // --- Função que verifica chuva de brancos ---
+  function checkWhiteRain(data) {
+    let rainCount = 0;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].color === 'white') rainCount++;
+      else rainCount = 0;
+      if (rainCount >= 3) return true;
+    }
+    return false;
+  }
+
+  // --- Função para detectar REC (recuperação) básica ---
+  function checkREC(data) {
+    if (data.length < 5) return false;
+    // Exemplo: se nos últimos 5 resultados tiver pelo menos 3 brancos, consideramos REC
+    let recent = data.slice(-5);
+    let whiteCount = recent.filter(d => d.color === 'white').length;
+    return whiteCount >= 3;
+  }
+
+  // --- Processa o histórico colado ---
+  function processHistory() {
+    const text = document.getElementById('history-input').value;
+    if (!text.trim()) {
+      alert('Cole o histórico antes de processar.');
+      return;
+    }
+    historyData = parseHistory(text);
+    if (historyData.length === 0) {
+      alert('Histórico inválido ou vazio.');
+      return;
+    }
+    strategies = generateSimpleStrategies(historyData);
+    saveDataLocal();
+    document.getElementById('result').textContent = 'Histórico analisado com sucesso. Estratégias geradas: ' + strategies.length;
+
+    const isRain = checkWhiteRain(historyData);
+    const isRec = checkREC(historyData);
+    recMode = isRec;
+
+    let extraMsg = '';
+    if (isRain) extraMsg += ' 🌧️ Chuva de brancos detectada!';
+    if (isRec) extraMsg += ' 🔄 Momento de REC (recuperação).';
+
+    document.getElementById('result').textContent += extraMsg;
+
+    renderStrategies();
+    toggleFeedbackButtons(false);
+  }
+
+  // --- Renderiza estratégias na tela ---
+  function renderStrategies() {
+    const container = document.getElementById('strategies');
+    if (!strategies.length) {
+      container.textContent = 'Nenhuma estratégia gerada ainda.';
+      return;
+    }
+    container.innerHTML = '<strong>Estratégias Salvas:</strong><br />';
+    strategies.forEach((s, i) => {
+      container.innerHTML += `#${i + 1}: Pedra anterior ${s.prevStone}, Pedra posterior ${s.nextStone}, Branco em ${s.whiteTime}<br>`;
+    });
+  }
+
+  // --- Análise manual da entrada ---
   function analyzeManualInput() {
-      const prevNum = parseInt(document.getElementById('prev-stone-number').value);
-      const prevTime = document.getElementById('prev-stone-time').value;
-      const whiteTime = document.getElementById('white-time').value;
-      const nextNum = parseInt(document.getElementById('next-stone-number').value);
-      const nextTime = document.getElementById('next-stone-time').value;
+    const prevNum = parseInt(document.getElementById('prev-stone-number').value);
+    const prevTime = document.getElementById('prev-stone-time').value.trim();
+    const whiteTime = document.getElementById('white-time').value.trim();
+    const nextNum = parseInt(document.getElementById('next-stone-number').value);
+    const nextTime = document.getElementById('next-stone-time').value.trim();
 
-      if (isNaN(prevNum) || !prevTime || !whiteTime || isNaN(nextNum) || !nextTime) {
-          alert('Por favor, preencha todos os campos corretamente com números e horários com segundos (HH:MM:SS).');
-          return;
-      }
+    if (isNaN(prevNum) || !prevTime || !whiteTime || isNaN(nextNum) || !nextTime) {
+      alert('Por favor, preencha todos os campos corretamente com números e horários no formato HH:MM:SS.');
+      return;
+    }
 
-      // Busca estratégia compatível para o horário dado (simplificado)
-      let matches = strategies.filter(s => s.prevStone === prevNum && s.nextStone === nextNum);
-      if (matches.length === 0) {
-          document.getElementById('result').textContent = 'Nenhuma estratégia compatível encontrada para a combinação informada.';
-          document.getElementById('correct-btn').disabled = true;
-          document.getElementById('wrong-btn').disabled = true;
-          return;
-      }
+    // Valida os horários
+    if (
+      parseTimeToSeconds(prevTime) === null ||
+      parseTimeToSeconds(whiteTime) === null ||
+      parseTimeToSeconds(nextTime) === null
+    ) {
+      alert('Horários inválidos! Use o formato HH:MM:SS.');
+      return;
+    }
 
-      // Exibe resultado
-      lastPrediction = matches[0];
-      document.getElementById('result').textContent = `Estratégia encontrada: Pedra anterior ${prevNum}, Pedra posterior ${nextNum}, Branco detectado às ${lastPrediction.whiteTime}`;
-      document.getElementById('correct-btn').disabled = false;
-      document.getElementById('wrong-btn').disabled = false;
-  }
+    // Busca estratégias compatíveis (simplificado)
+    const matches = strategies.filter(
+      s => s.prevStone === prevNum && s.nextStone === nextNum
+    );
 
-  function feedback(correct) {
-      if (!lastPrediction) return;
-      // Aqui a lógica para ajustar estratégias com base no feedback
-      if (correct) {
-          alert('Obrigado pelo feedback positivo!');
-      } else {
-          alert('Feedback negativo recebido, estratégia será revisada.');
-      }
-      // Desabilita botões após feedback
-      document.getElementById('correct-btn').disabled = true;
-      document.getElementById('wrong-btn').disabled = true;
+    if (matches.length === 0) {
+      document.getElementById('result').textContent =
+        'Nenhuma estratégia compatível encontrada para a combinação informada.';
+      toggleFeedbackButtons(false);
       lastPrediction = null;
+      return;
+    }
+
+    lastPrediction = matches[0];
+    document.getElementById('result').textContent =
+      `Estratégia encontrada: Pedra anterior ${prevNum}, Pedra posterior ${nextNum}, Branco detectado às ${lastPrediction.whiteTime}`;
+    toggleFeedbackButtons(true);
   }
 
+  // --- Feedback do usuário para aprendizado ---
+  function feedback(correct) {
+    if (!lastPrediction) return;
+
+    if (correct) {
+      alert('Obrigado pelo feedback positivo! Estratégia reforçada.');
+    } else {
+      alert('Feedback negativo recebido. Estratégia será revisada.');
+      // Exemplo: remove a estratégia para aprendizado básico
+      strategies = strategies.filter(
+        s =>
+          !(
+            s.prevStone === lastPrediction.prevStone &&
+            s.nextStone === lastPrediction.nextStone &&
+            s.whiteTime === lastPrediction.whiteTime
+          )
+      );
+      saveDataLocal();
+      renderStrategies();
+    }
+    toggleFeedbackButtons(false);
+    lastPrediction = null;
+  }
+
+  // --- Ativa ou desativa botões de feedback ---
+  function toggleFeedbackButtons(enable) {
+    document.getElementById('correct-btn').disabled = !enable;
+    document.getElementById('wrong-btn').disabled = !enable;
+  }
+
+  // --- Limpa histórico e estratégias ---
+  function clearHistory() {
+    if (!confirm('Tem certeza que deseja limpar histórico e estratégias?')) return;
+    historyData = [];
+    strategies = [];
+    lastPrediction = null;
+    recMode = false;
+    document.getElementById('history-input').value = '';
+    document.getElementById('result').textContent = '';
+    document.getElementById('strategies').textContent = '';
+    toggleFeedbackButtons(false);
+    clearLocalStorage();
+  }
+
+  // --- Local Storage para salvar dados ---
+  function saveDataLocal() {
+    localStorage.setItem('scofield_history', JSON.stringify(historyData));
+    localStorage.setItem('scofield_strategies', JSON.stringify(strategies));
+  }
+  function loadDataLocal() {
+    const hist = localStorage.getItem('scofield_history');
+    const strat = localStorage.getItem('scofield_strategies');
+    if (hist) historyData = JSON.parse(hist);
+    if (strat) strategies = JSON.parse(strat);
+    if (strategies.length > 0) renderStrategies();
+  }
+  function clearLocalStorage() {
+    localStorage.removeItem('scofield_history');
+    localStorage.removeItem('scofield_strategies');
+  }
+
+  // --- Eventos ---
   document.getElementById('process-history-btn').addEventListener('click', processHistory);
   document.getElementById('analyze-btn').addEventListener('click', analyzeManualInput);
   document.getElementById('correct-btn').addEventListener('click', () => feedback(true));
   document.getElementById('wrong-btn').addEventListener('click', () => feedback(false));
+  document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
+
+  // --- Carregar dados locais ao iniciar ---
+  window.onload = () => {
+    loadDataLocal();
+  };
 </script>
 
 </body>
